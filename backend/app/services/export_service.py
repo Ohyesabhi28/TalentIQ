@@ -15,7 +15,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import colors
 
 from app.exceptions import AppError
@@ -81,7 +81,6 @@ class ExportService:
             cell.border = border_thin
             
         for row_num, cand in enumerate(ranking.candidates, 2):
-            resume = await self._store.get_resume_profile(cand.candidate_id)
             insight_rec = await self._store.get_recommendation(cand.candidate_id)
             
             rec = insight_rec.insight.hiring_recommendation if insight_rec else self._determine_recommendation(cand.overall_score)
@@ -157,11 +156,8 @@ class ExportService:
             bottomMargin=36
         )
         
-        styles = getSampleStyleSheet()
-        
         # Color Palette
         primary_color = colors.HexColor("#4F518C")
-        secondary_color = colors.HexColor("#c0c1ff")
         text_color = colors.HexColor("#2C2C2C")
         
         # Paragraph Styles

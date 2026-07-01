@@ -32,12 +32,46 @@ class ExplainabilityService:
             model_name="gemini-2.5-flash",
             system_instruction=(
                 "You are an expert technical recruiter AI. "
-                "Your job is to transform structured JSON scoring data into a human-readable explanation. "
+                "Your job is to transform structured JSON candidate and scoring evidence into a human-readable explanation. "
                 "CRITICAL: You MUST NOT invent, guess, or hallucinate any information. "
-                "You must ONLY base your insights on the exact JSON evidence provided. "
+                "Every statement must be strictly backed by the provided candidate profile (ResumeProfile) and score breakdown. "
+                "No unsupported claims. No invented skills. No invented experience. "
                 "Keep the tone professional, objective, and action-oriented."
             )
         )
+
+    def _determine_recommendation(self, score: float) -> str:
+        if score >= 85:
+            return "Strong Fit"
+        elif score >= 70:
+            return "Good Fit"
+        elif score >= 50:
+            return "Average Fit"
+        else:
+            return "Poor Fit"
+
+    def _generate_interview_focus_areas(self, candidate: CandidateScore) -> list[str]:
+        focus_areas = []
+        breakdown = candidate.breakdown
+        
+        # Missing skills -> Interview [Skill]
+        if breakdown.skill_match.missing_skills:
+            for skill in breakdown.skill_match.missing_skills:
+                focus_areas.append(f"Interview {skill}")
+                
+        # Weak scoring categories (< 70)
+        if breakdown.project_relevance.project_score < 70:
+            focus_areas.append("Ask about real-world projects")
+        if breakdown.experience_match.experience_score < 70:
+            focus_areas.append("Inquire about depth of experience and years of professional work")
+        if breakdown.skill_match.skill_score < 70:
+            focus_areas.append("Assess hands-on technical abilities and foundational coding")
+        if breakdown.education_match.education_score < 70:
+            focus_areas.append("Discuss educational background or equivalent industry training")
+        if breakdown.certification_match.certification_score < 70:
+            focus_areas.append("Verify relevant professional certifications and credentials")
+            
+        return focus_areas
 
     async def generate_insights_for_job(self, job_id: UUID) -> list[HiringRecommendationRecord]:
         logger.info("Starting insight generation for job_id=%s", job_id)
@@ -57,12 +91,47 @@ class ExplainabilityService:
     async def _generate_insight_for_candidate(self, job_id: UUID, candidate: CandidateScore) -> HiringRecommendationRecord:
         logger.debug("Generating insight for candidate %s", candidate.candidate_name)
         
+        resume = await self._store.get_resume_profile(candidate.candidate_id)
+        if not resume:
+            raise AppError("RESUME_PROFILE_NOT_FOUND", f"Resume profile not found for candidate {candidate.candidate_id}", 404)
+            
+        rec_label = self._determine_recommendation(candidate.overall_score)
+        focus_areas = self._generate_interview_focus_areas(candidate)
+        
+        # Prepare structured context for Gemini
+        evidence = {
+            "candidate_name": candidate.candidate_name,
+            "overall_score": candidate.overall_score,
+            "deterministic_recommendation": rec_label,
+            "score_breakdown": candidate.breakdown.model_dump(),
+            "resume_profile": {
+                "personal_info": resume.personal_information.model_dump(),
+                "professional_info": resume.professional_information.model_dump(),
+                "skills": resume.skills.model_dump(),
+                "experience": [exp.model_dump() for exp in resume.experience],
+                "projects": [proj.model_dump() for proj in resume.projects],
+                "education": [edu.model_dump() for edu in resume.education],
+                "certifications": [cert.model_dump() for cert in resume.certifications],
+                "summary": resume.summary
+            }
+        }
+        
         prompt = (
-            f"Here is the deterministic scoring evidence for candidate '{candidate.candidate_name}'.\n"
-            f"Overall Score: {candidate.overall_score}/100\n"
-            f"Recommendation Band: {candidate.rank}\n"
-            f"Score Breakdown JSON: {candidate.breakdown.model_dump_json()}\n\n"
-            "Generate a structured explanation. For matched/missing skills, simply copy them exactly from the evidence JSON."
+            f"Here is the deterministic scoring evidence and candidate profile:\n"
+            f"{json.dumps(evidence, indent=2)}\n\n"
+            f"Generate a CandidateInsight object matching the response schema.\n"
+            f"Requirements:\n"
+            f"1. overall_summary: Summary of candidate's qualifications and fit.\n"
+            f"2. top_strengths: Factual list of 2-3 key strengths matching JD. Strictly use facts from the resume.\n"
+            f"3. top_weaknesses: Factual list of 2-3 gaps or weaknesses based on missing skills or lower scores.\n"
+            f"4. matched_skills: Copy exactly from score_breakdown.skill_match.matched_skills.\n"
+            f"5. missing_skills: Copy exactly from score_breakdown.skill_match.missing_skills.\n"
+            f"6. relevant_projects: Highlight actual projects from the projects list that align with the role.\n"
+            f"7. experience_highlights: Key professional achievements/milestones from work history.\n"
+            f"8. education_summary: Summarize candidate's degree, specialization, and institution.\n"
+            f"9. certification_summary: Summarize candidate's certifications.\n"
+            f"10. interview_focus_areas: Populate using exactly this list: {focus_areas}.\n"
+            f"11. hiring_recommendation: Output exactly '{rec_label}'.\n"
         )
         
         try:
@@ -78,13 +147,18 @@ class ExplainabilityService:
             
             raw_text = response.text
             insight_data = json.loads(raw_text)
+            
+            # Double check recommendation & interview focus areas to ensure safety & determinism
+            insight_data["hiring_recommendation"] = rec_label
+            insight_data["interview_focus_areas"] = focus_areas
+            
             insight = CandidateInsight.model_validate(insight_data)
             
             record = HiringRecommendationRecord(
                 analysis_job_id=job_id,
                 candidate_id=candidate.candidate_id,
                 overall_score=candidate.overall_score,
-                recommendation=candidate.rank,
+                recommendation=rec_label,
                 insight=insight
             )
             

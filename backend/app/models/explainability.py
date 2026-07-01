@@ -19,18 +19,22 @@ class CandidateInsight(AppBaseModel):
     """
     Structured insights synthesized by Gemini from deterministic evidence.
     """
-    why_ranked_here: str = Field(description="Summary of why the candidate received this overall score and rank.")
+    overall_summary: str = Field(description="Overall summary of the candidate matching the JD.")
     top_strengths: List[str] = Field(description="Top 2-3 strengths matching the JD.")
     top_weaknesses: List[str] = Field(description="Top 2-3 missing elements or weaknesses.")
     matched_skills: List[str] = Field(description="Exact skills matched (carried over from scoring).")
     missing_skills: List[str] = Field(description="Exact skills missing (carried over from scoring).")
+    relevant_projects: List[str] = Field(description="Factual bullet points of relevant projects candidate worked on matching JD responsibilities.")
+    experience_highlights: List[str] = Field(description="Key professional experience milestones/highlights.")
+    education_summary: str = Field(description="Factual summary of education.")
+    certification_summary: str = Field(description="Factual summary of certifications.")
     interview_focus_areas: List[str] = Field(description="Suggested topics to dig into during an interview.")
-    suggested_next_step: str = Field(description="Actionable next step (e.g. 'Schedule technical screen', 'Pass').")
+    hiring_recommendation: str = Field(description="Deterministic recommendation level (e.g. Strong Fit, Good Fit, Average Fit, Poor Fit).")
 
 
-class HiringRecommendationRecord(IdentifiableMixin):
+class HiringRecommendation(AppBaseModel):
     """
-    Internal record linking the AI insight to a candidate and job.
+    Hiring recommendation containing the candidate insight.
     """
     analysis_job_id: UUID = Field(description="ID of the Analysis Job")
     candidate_id: UUID = Field(description="ID of the ResumeProfile")
@@ -39,8 +43,26 @@ class HiringRecommendationRecord(IdentifiableMixin):
     insight: CandidateInsight = Field(description="The generated AI explanation.")
 
 
+class HiringRecommendationRecord(HiringRecommendation, IdentifiableMixin):
+    """
+    Internal record linking the AI insight to a candidate and job.
+    """
+    pass
+
+
 class HiringRecommendationRead(HiringRecommendationRecord):
     """
     API Response shape for the recommendation.
     """
     pass
+
+
+class InsightSummary(AppBaseModel):
+    """
+    Lightweight summary of candidate insights.
+    """
+    candidate_id: UUID = Field(description="ID of the ResumeProfile")
+    candidate_name: str = Field(description="Name of the candidate")
+    overall_score: float = Field(description="Overall score")
+    recommendation: str = Field(description="Rank/Recommendation level")
+    overall_summary: str = Field(description="Overall summary of candidate insights")

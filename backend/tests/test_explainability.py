@@ -11,6 +11,7 @@ from unittest.mock import Mock, AsyncMock
 
 from app.models.explainability import CandidateInsight
 from app.models.scoring import CandidateScore, ScoreBreakdown, SkillMatchDetail, ProjectMatchDetail, ExperienceMatchDetail, EducationMatchDetail, CertificationMatchDetail
+from app.models.resume import ResumeProfileRecord, PersonalInformation, ProfessionalInformation, SkillGroup
 from app.services.explainability_service import ExplainabilityService
 from app.store.memory import InMemoryStore
 from app.config import Settings
@@ -31,13 +32,17 @@ async def test_explainability_generation(store, settings, monkeypatch):
     class MockResponse:
         def __init__(self):
             self.text = json.dumps({
-                "why_ranked_here": "Good candidate overall.",
+                "overall_summary": "Good candidate overall.",
                 "top_strengths": ["Python"],
                 "top_weaknesses": ["Docker"],
                 "matched_skills": ["Python"],
                 "missing_skills": ["Docker"],
-                "interview_focus_areas": ["System Design"],
-                "suggested_next_step": "Interview"
+                "relevant_projects": ["Built Python API"],
+                "experience_highlights": ["3 years as Dev"],
+                "education_summary": "BS CS",
+                "certification_summary": "None",
+                "interview_focus_areas": ["Interview Docker"],
+                "hiring_recommendation": "Strong Fit"
             })
             
     mock_model = Mock()
@@ -62,8 +67,24 @@ async def test_explainability_generation(store, settings, monkeypatch):
         )
     )
     
-    # Store ranking so service can find it
+    resume = ResumeProfileRecord(
+        id=cand_id,
+        analysis_job_id=job_id,
+        original_file_id=uuid.uuid4(),
+        raw_text="Alice Resume",
+        personal_information=PersonalInformation(name="Alice", email="alice@test.com"),
+        professional_information=ProfessionalInformation(total_years_experience=3.0, current_role="Dev"),
+        skills=SkillGroup(languages=["Python"]),
+        experience=[],
+        projects=[],
+        education=[],
+        certifications=[]
+    )
+    
+    # Mock store methods
     store.get_ranking = AsyncMock(return_value=Mock(candidates=[cand]))
+    store.get_resume_profile = AsyncMock(return_value=resume)
+    store.save_recommendation = AsyncMock()
     
     recs = await service.generate_insights_for_job(job_id)
     assert len(recs) == 1
@@ -71,5 +92,5 @@ async def test_explainability_generation(store, settings, monkeypatch):
     rec = recs[0]
     assert rec.candidate_id == cand_id
     assert rec.recommendation == "Strong Fit"
-    assert rec.insight.why_ranked_here == "Good candidate overall."
+    assert rec.insight.overall_summary == "Good candidate overall."
     assert rec.insight.matched_skills == ["Python"]

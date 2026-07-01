@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import GlassCard from '../components/common/GlassCard';
 import mockData from '../data/mockData.json';
 
-const ExportCenter = () => {
+const ExportCenter = ({ activeJobId }) => {
   const [downloading, setDownloading] = useState({ excel: false, pdf: false, json: false });
   const [notification, setNotification] = useState(null);
 
@@ -13,7 +13,7 @@ const ExportCenter = () => {
 
   const handleDownload = async (format) => {
     setDownloading(prev => ({ ...prev, [format]: true }));
-    const mockJobId = "00000000-0000-0000-0000-000000000000";
+    const mockJobId = activeJobId || "00000000-0000-0000-0000-000000000000";
     
     try {
       if (format === 'json') {

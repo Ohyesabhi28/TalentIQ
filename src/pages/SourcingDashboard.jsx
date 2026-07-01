@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../components/common/GlassCard';
+import { uploadFile, createAnalysisJob } from '../utils/api';
 
-const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
+const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes, activeJobId, setActiveJobId }) => {
   const navigate = useNavigate();
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleJdDrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      setJdFile({ name: file.name, size: file.size });
+      setJdFile(file);
     }
   };
 
   const handleResumesDrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files).map((f) => ({
-        name: f.name,
-        size: f.size,
-      }));
+      const newFiles = Array.from(e.dataTransfer.files);
       setResumes((prev) => [...prev, ...newFiles]);
     }
   };
@@ -32,7 +32,7 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
       input.onchange = (e) => {
         if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
-          setJdFile({ name: file.name, size: file.size });
+          setJdFile(file);
         }
       };
     } else {
@@ -40,10 +40,7 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
       input.accept = '.pdf,.docx,.txt';
       input.onchange = (e) => {
         if (e.target.files) {
-          const newFiles = Array.from(e.target.files).map((f) => ({
-            name: f.name,
-            size: f.size,
-          }));
+          const newFiles = Array.from(e.target.files);
           setResumes((prev) => [...prev, ...newFiles]);
         }
       };
@@ -55,10 +52,38 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
     setResumes((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!jdFile || resumes.length === 0) return;
-    navigate('/analyzing');
+    
+    setAnalyzing(true);
+    setError(null);
+    
+    try {
+      // 1. Upload Job Description
+      const jdResult = await uploadFile(jdFile, "job_description");
+      const jdFileId = jdResult.id;
+      
+      // 2. Upload Resumes in parallel
+      const resumeUploadPromises = resumes.map(file => uploadFile(file, "resume"));
+      const resumeResults = await Promise.all(resumeUploadPromises);
+      const resumeFileIds = resumeResults.map(r => r.id);
+      
+      // 3. Create Analysis Job
+      const job = await createAnalysisJob(jdFileId, resumeFileIds);
+      
+      // 4. Update state and navigate
+      setActiveJobId(job.id);
+      navigate(`/analyzing?jobId=${job.id}`);
+      
+    } catch (err) {
+      console.error("Analysis pipeline start failed:", err);
+      setError(err.message || "Failed to initiate candidate sourcing analysis. Please check that the backend service is running.");
+    } finally {
+      setAnalyzing(false);
+    }
   };
+
+  const totalSize = (resumes.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2);
 
   return (
     <div className="space-y-12">
@@ -71,6 +96,14 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
           Upload a job description and a batch of resumes. Our Enterprise AI will instantly analyze, score, and rank candidates based on semantic fit and skill gap analysis.
         </p>
       </section>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-950/40 border border-red-500/20 text-red-200 px-6 py-4 rounded-xl text-sm flex items-center gap-3">
+          <span className="material-symbols-outlined text-red-400">error</span>
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* Upload Grid */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
@@ -98,27 +131,26 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
               <div>
                 <p className="font-label-md text-label-md text-primary font-semibold mb-1">{jdFile.name}</p>
                 <p className="font-label-sm text-label-sm text-on-surface-variant">
-                  {(jdFile.size / (1024 * 1024)).toFixed(2)} MB • Ready
+                  {(jdFile.size / 1024).toFixed(1)} KB — Ready
                 </p>
               </div>
             ) : (
               <div>
-                <p className="font-label-md text-label-md text-on-surface mb-2">Drag & drop Job Description</p>
-                <p className="font-label-sm text-label-sm text-on-surface-variant mb-6">
-                  Supports PDF, DOCX, TXT (Max 5MB)
+                <p className="font-label-md text-label-md text-on-surface font-semibold mb-1">
+                  Drag &amp; drop Job Description here
                 </p>
-                <button className="px-6 py-2 rounded-full border border-white/10 bg-transparent text-on-surface hover:bg-white/5 hover:border-white/40 transition-all font-label-md text-label-md cursor-pointer">
-                  Browse Files
-                </button>
+                <p className="font-label-sm text-label-sm text-on-surface-variant font-light">
+                  or click to browse local files (.pdf, .docx, .txt)
+                </p>
               </div>
             )}
           </div>
         </GlassCard>
 
-        {/* Candidate Resumes Upload */}
+        {/* Resumes Batch Upload */}
         <GlassCard className="p-6 flex flex-col min-h-[350px]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-headline-md text-headline-md text-on-surface">Candidate Resumes</h2>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Candidate Pool</h2>
             <span className="text-primary-fixed bg-primary/10 px-3 py-1 rounded-full font-label-sm text-label-sm border border-primary/20">
               Step 2
             </span>
@@ -135,104 +167,80 @@ const SourcingDashboard = ({ jdFile, setJdFile, resumes, setResumes }) => {
                 upload_file
               </span>
             </div>
-            {resumes.length > 0 ? (
-              <div>
-                <p className="font-label-md text-label-md text-primary font-semibold mb-1">
-                  {resumes.length} {resumes.length === 1 ? 'Resume' : 'Resumes'} Added
-                </p>
-                <p className="font-label-sm text-label-sm text-on-surface-variant">
-                  Click to add more or browse files
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p className="font-label-md text-label-md text-on-surface mb-2">Drag & drop Resume batch</p>
-                <p className="font-label-sm text-label-sm text-on-surface-variant mb-6">
-                  Upload up to 10 files (PDF, DOCX, TXT)
-                </p>
-                <button className="px-6 py-2 rounded-full border border-white/10 bg-transparent text-on-surface hover:bg-white/5 hover:border-white/40 transition-all font-label-md text-label-md cursor-pointer">
-                  Browse Files
-                </button>
-              </div>
-            )}
+            <div>
+              <p className="font-label-md text-label-md text-on-surface font-semibold mb-1">
+                Drag &amp; drop resumes batch here
+              </p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant font-light">
+                or click to browse multiple resumes (.pdf, .docx, .txt)
+              </p>
+            </div>
           </div>
         </GlassCard>
       </section>
 
-      {/* Files List Panel (Only visible when files are added) */}
-      {(jdFile || resumes.length > 0) && (
-        <section className="animate-fade-in">
-          <GlassCard className="p-6">
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-6">Added Documents</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">
-                    <th className="pb-3">File Name</th>
-                    <th className="pb-3">Type</th>
-                    <th className="pb-3">Size</th>
-                    <th className="pb-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="font-body-md text-body-md divide-y divide-white/5">
-                  {jdFile && (
-                    <tr className="hover:bg-white/5 transition-colors">
-                      <td className="py-4 font-semibold text-primary flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px]">assignment_turned_in</span>
-                        {jdFile.name}
-                      </td>
-                      <td className="py-4 text-on-surface-variant">Job Description</td>
-                      <td className="py-4 text-on-surface-variant">
-                        {(jdFile.size / (1024 * 1024)).toFixed(2)} MB
-                      </td>
-                      <td className="py-4 text-right">
-                        <button
-                          onClick={() => setJdFile(null)}
-                          className="text-error hover:text-red-400 font-semibold cursor-pointer active:scale-95"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  )}
-                  {resumes.map((file, index) => (
-                    <tr key={index} className="hover:bg-white/5 transition-colors">
-                      <td className="py-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px] text-on-surface-variant">description</span>
-                        {file.name}
-                      </td>
-                      <td className="py-4 text-on-surface-variant">Resume</td>
-                      <td className="py-4 text-on-surface-variant">
-                        {(file.size / (1024 * 1024)).toFixed(2)} MB
-                      </td>
-                      <td className="py-4 text-right">
-                        <button
-                          onClick={() => handleRemoveResume(index)}
-                          className="text-error hover:text-red-400 font-semibold cursor-pointer active:scale-95"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Upload Progress / Batch List */}
+      {resumes.length > 0 && (
+        <GlassCard className="p-6 space-y-4">
+          <div className="flex justify-between items-center border-b border-white/5 pb-4">
+            <div>
+              <h3 className="font-headline-sm text-lg font-bold text-on-surface">Selected Resumes</h3>
+              <p className="text-xs text-on-surface-variant mt-0.5">{resumes.length} files selected ({totalSize} MB)</p>
             </div>
+            <button
+              onClick={() => setResumes([])}
+              className="text-label-sm text-red-400 hover:text-red-300 font-semibold cursor-pointer"
+            >
+              Clear Batch
+            </button>
+          </div>
 
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleAnalyze}
-                disabled={!jdFile || resumes.length === 0}
-                className={`glow-btn px-10 py-4 rounded-xl font-label-md text-label-md uppercase tracking-wider flex items-center gap-2 cursor-pointer ${
-                  (!jdFile || resumes.length === 0) ? 'opacity-40 cursor-not-allowed' : ''
-                }`}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[250px] overflow-y-auto pr-2">
+            {resumes.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/5"
               >
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <span className="material-symbols-outlined text-primary shrink-0">insert_drive_file</span>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-semibold text-white truncate">{file.name}</p>
+                    <p className="text-[10px] text-on-surface-variant mt-0.5">{(file.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRemoveResume(index); }}
+                  className="text-on-surface-variant hover:text-white shrink-0 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">close</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      )}
+
+      {/* Start Button */}
+      {jdFile && resumes.length > 0 && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={handleAnalyze}
+            disabled={analyzing}
+            className="px-10 py-4 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg shadow-[0_0_30px_rgba(192,193,255,0.3)] hover:shadow-[0_0_40px_rgba(192,193,255,0.5)] transition-all glow-btn tracking-wide font-black cursor-pointer active:scale-95 flex items-center gap-3"
+          >
+            {analyzing ? (
+              <>
+                <span className="material-symbols-outlined animate-spin">sync</span>
+                Uploading &amp; Analyzing...
+              </>
+            ) : (
+              <>
                 <span className="material-symbols-outlined">analytics</span>
-                Analyze Candidates
-              </button>
-            </div>
-          </GlassCard>
-        </section>
+                Start Candidate Sourcing
+              </>
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

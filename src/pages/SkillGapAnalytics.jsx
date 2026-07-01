@@ -4,16 +4,16 @@ import GlassCard from '../components/common/GlassCard';
 import AICopilotCard from '../components/common/AICopilotCard';
 import mockData from '../data/mockData.json';
 
-const SkillGapAnalytics = () => {
+const SkillGapAnalytics = ({ activeJobId }) => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
+      const jobId = activeJobId || "00000000-0000-0000-0000-000000000000";
       try {
         setLoading(true);
-        // Using a nil UUID or placeholder UUID to fetch analytics
-        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/00000000-0000-0000-0000-000000000000/analytics`);
+        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/${jobId}/analytics`);
         if (response.ok) {
           const resJson = await response.json();
           if (resJson && resJson.data) {
@@ -27,7 +27,7 @@ const SkillGapAnalytics = () => {
       }
     };
     fetchAnalytics();
-  }, []);
+  }, [activeJobId]);
 
   const skillDistribution = analytics 
     ? [

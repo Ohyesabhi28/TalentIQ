@@ -4,15 +4,16 @@ import GlassCard from '../components/common/GlassCard';
 import AICopilotCard from '../components/common/AICopilotCard';
 import mockData from '../data/mockData.json';
 
-const HiringReport = ({ candidates }) => {
+const HiringReport = ({ candidates, activeJobId }) => {
   const [execData, setExecData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchExecSummary = async () => {
+      const jobId = activeJobId || "00000000-0000-0000-0000-000000000000";
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/00000000-0000-0000-0000-000000000000/executive-summary`);
+        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/${jobId}/executive-summary`);
         if (response.ok) {
           const resJson = await response.json();
           if (resJson && resJson.data) {
@@ -26,7 +27,7 @@ const HiringReport = ({ candidates }) => {
       }
     };
     fetchExecSummary();
-  }, []);
+  }, [activeJobId]);
 
   const activeCandidates = (candidates && candidates.length > 0) ? candidates : mockData.candidates;
 

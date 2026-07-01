@@ -1,12 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../components/common/GlassCard';
 import AICopilotCard from '../components/common/AICopilotCard';
 import mockData from '../data/mockData.json';
+import { getRanking } from '../utils/api';
 
-const PipelineResults = ({ candidates, allCandidatesCount }) => {
+const PipelineResults = ({ candidates: propCandidates, allCandidatesCount: propCount, activeJobId }) => {
   const navigate = useNavigate();
   const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [liveRanking, setLiveRanking] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchLiveRankings = async () => {
+      if (!activeJobId) return;
+      setLoading(true);
+      try {
+        const ranking = await getRanking(activeJobId);
+        if (ranking && ranking.candidates) {
+          // Map backend candidate details to frontend shape
+          const mapped = ranking.candidates.map((cand, idx) => {
+            const b = cand.breakdown;
+            const skillsMap = {};
+            b.skill_match.matched_skills.forEach(s => { skillsMap[s] = 'match'; });
+            b.skill_match.missing_skills.forEach(s => { skillsMap[s] = 'gap'; });
+            
+            return {
+              id: cand.candidate_id,
+              name: cand.candidate_name,
+              score: Math.round(cand.overall_score),
+              matchType: cand.rank,
+              ranking: idx === 0 ? 'Top 1%' : `Rank #${idx + 1}`,
+              prevRole: "Software Engineer",
+              experience: `${Math.round(b.experience_match.candidate_years)} yrs`,
+              avatar: `https://images.unsplash.com/photo-${1500000000000 + (idx * 100000)}?auto=format&fit=crop&w=100&q=80`,
+              skills: skillsMap,
+              fileName: `resume_${cand.candidate_name.toLowerCase().replace(' ', '_')}.pdf`
+            };
+          });
+          setLiveRanking(mapped);
+        }
+      } catch (err) {
+        console.warn("Could not load backend rankings, using mock data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLiveRankings();
+  }, [activeJobId]);
+
+  const candidates = liveRanking.length > 0 ? liveRanking : propCandidates;
+  const totalCount = liveRanking.length > 0 ? liveRanking.length : propCount;
 
   const handleToggleCompare = (id) => {
     setSelectedCandidates((prev) =>
@@ -65,7 +109,7 @@ const PipelineResults = ({ candidates, allCandidatesCount }) => {
           </div>
           <div>
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Analyzed Resumes</p>
-            <h3 className="text-2xl font-bold text-white mt-0.5">{allCandidatesCount} Profiles</h3>
+            <h3 className="text-2xl font-bold text-white mt-0.5">{totalCount} Profiles</h3>
           </div>
         </GlassCard>
 

@@ -19,6 +19,7 @@ function AppShell({ user, onLogout }) {
 
   const [jdFile, setJdFile] = useState(null);
   const [resumes, setResumes] = useState([]);
+  const [activeJobId, setActiveJobId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSupportOpen, setSupportOpen] = useState(false);
   const [isLogoutOpen, setLogoutOpen] = useState(false);
@@ -121,28 +122,30 @@ function AppShell({ user, onLogout }) {
                   setJdFile={setJdFile}
                   resumes={resumes}
                   setResumes={setResumes}
+                  activeJobId={activeJobId}
+                  setActiveJobId={setActiveJobId}
                 />
               }
             />
-            <Route path="/analyzing" element={<AnalyzingLoader />} />
+            <Route path="/analyzing" element={<AnalyzingLoader activeJobId={activeJobId} setActiveJobId={setActiveJobId} />} />
             <Route
               path="/results"
-              element={<PipelineResults candidates={filteredCandidates} allCandidatesCount={candidates.length} />}
+              element={<PipelineResults candidates={filteredCandidates} allCandidatesCount={candidates.length} activeJobId={activeJobId} />}
             />
             <Route
               path="/profile/:id"
-              element={<CandidateProfile candidates={candidates} />}
+              element={<CandidateProfile candidates={candidates} activeJobId={activeJobId} />}
             />
             <Route
               path="/comparison"
-              element={<CandidateComparison candidates={candidates} />}
+              element={<CandidateComparison candidates={candidates} activeJobId={activeJobId} />}
             />
-            <Route path="/analytics" element={<SkillGapAnalytics />} />
+            <Route path="/analytics" element={<SkillGapAnalytics activeJobId={activeJobId} />} />
             <Route
               path="/report"
-              element={<HiringReport candidates={candidates} />}
+              element={<HiringReport candidates={candidates} activeJobId={activeJobId} />}
             />
-            <Route path="/export" element={<ExportCenter />} />
+            <Route path="/export" element={<ExportCenter activeJobId={activeJobId} />} />
           </Routes>
         </main>
       </div>

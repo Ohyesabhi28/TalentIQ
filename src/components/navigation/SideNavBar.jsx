@@ -51,6 +51,10 @@ const SideNavBar = ({ onSupportClick, onLogoutClick }) => {
           <span className="material-symbols-outlined text-[20px]">assignment</span>
           Hiring Report
         </Link>
+        <Link to="/export" className={getLinkClass('/export', 'download')}>
+          <span className="material-symbols-outlined text-[20px]">download</span>
+          Export Center
+        </Link>
       </nav>
       <div className="mt-auto border-t border-white/10 pt-4 flex flex-col gap-2">
         <button 

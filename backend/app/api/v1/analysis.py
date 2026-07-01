@@ -9,10 +9,12 @@ POST /v1/analysis/jobs/{job_id}/generate-insights, GET /v1/analysis/jobs/{job_id
 
 from __future__ import annotations
 
+import io
 from typing import List, Dict, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse, Response
 
 from app.dependencies import (
     get_analysis_job_service,
@@ -22,6 +24,7 @@ from app.dependencies import (
     get_ranking_service,
     get_explainability_service,
     get_analytics_service,
+    get_export_service,
 )
 from app.logging_config import get_logger
 from app.models.analysis import AnalysisJobCreate, AnalysisJobRead
@@ -38,6 +41,7 @@ from app.services.semantic_profile import SemanticProfileService
 from app.services.ranking_service import RankingService
 from app.services.explainability_service import ExplainabilityService
 from app.services.analytics_service import AnalyticsService
+from app.services.export_service import ExportService
 
 logger = get_logger(__name__)
 
@@ -304,4 +308,58 @@ async def get_job_executive_summary(
             recommendations=recs
         )
     )
+
+
+# ── GET /analysis/jobs/{job_id}/export/excel ──────────────────────────
+
+
+@router.get(
+    "/jobs/{job_id}/export/excel",
+    summary="Export candidate rankings to Excel spreadsheet",
+)
+async def export_job_excel(
+    job_id: UUID,
+    service: ExportService = Depends(get_export_service),
+) -> StreamingResponse:
+    excel_bytes = await service.export_to_excel(job_id)
+    return StreamingResponse(
+        io.BytesIO(excel_bytes),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=talent_iq_rankings_{job_id}.xlsx"}
+    )
+
+
+# ── GET /analysis/jobs/{job_id}/export/pdf ────────────────────────────
+
+
+@router.get(
+    "/jobs/{job_id}/export/pdf",
+    summary="Export executive summary to PDF report",
+)
+async def export_job_pdf(
+    job_id: UUID,
+    service: ExportService = Depends(get_export_service),
+) -> Response:
+    pdf_bytes = await service.export_to_pdf(job_id)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=talent_iq_report_{job_id}.pdf"}
+    )
+
+
+# ── GET /analysis/jobs/{job_id}/export/json ───────────────────────────
+
+
+@router.get(
+    "/jobs/{job_id}/export/json",
+    summary="Export all sourcing results to JSON",
+)
+async def export_job_json(
+    job_id: UUID,
+    service: ExportService = Depends(get_export_service),
+) -> BaseResponse[dict]:
+    json_data = await service.export_to_json(job_id)
+    return BaseResponse(data=json_data)
+
 

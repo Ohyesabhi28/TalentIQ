@@ -164,6 +164,12 @@ def get_analytics_service(
     from app.services.analytics_service import AnalyticsService
     return AnalyticsService(store=store)
 
+def get_export_service(
+    store=Depends(get_store),
+):
+    from app.services.export_service import ExportService
+    return ExportService(store=store)
+
 
 UploadServiceDep = Annotated[object, Depends(get_upload_service)]
 AnalysisJobServiceDep = Annotated[object, Depends(get_analysis_job_service)]
@@ -174,4 +180,6 @@ ScoringServiceDep = Annotated[object, Depends(get_scoring_service)]
 RankingServiceDep = Annotated[object, Depends(get_ranking_service)]
 ExplainabilityServiceDep = Annotated[object, Depends(get_explainability_service)]
 AnalyticsServiceDep = Annotated[object, Depends(get_analytics_service)]
+ExportServiceDep = Annotated[object, Depends(get_export_service)]
+
 

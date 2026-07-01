@@ -9,6 +9,7 @@ import CandidateProfile from './pages/CandidateProfile';
 import CandidateComparison from './pages/CandidateComparison';
 import SkillGapAnalytics from './pages/SkillGapAnalytics';
 import HiringReport from './pages/HiringReport';
+import ExportCenter from './pages/ExportCenter';
 import LoginPage from './pages/LoginPage';
 import mockData from './data/mockData.json';
 
@@ -141,6 +142,7 @@ function AppShell({ user, onLogout }) {
               path="/report"
               element={<HiringReport candidates={candidates} />}
             />
+            <Route path="/export" element={<ExportCenter />} />
           </Routes>
         </main>
       </div>

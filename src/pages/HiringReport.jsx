@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import GlassCard from '../components/common/GlassCard';
 import AICopilotCard from '../components/common/AICopilotCard';
 import mockData from '../data/mockData.json';
 
 const HiringReport = ({ candidates }) => {
-  const reportData = mockData.summaryReport;
+  const [execData, setExecData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExecSummary = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/00000000-0000-0000-0000-000000000000/executive-summary`);
+        if (response.ok) {
+          const resJson = await response.json();
+          if (resJson && resJson.data) {
+            setExecData(resJson.data);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load backend executive summary, falling back to mock data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExecSummary();
+  }, []);
+
   const activeCandidates = (candidates && candidates.length > 0) ? candidates : mockData.candidates;
 
   // Calculate dynamic fit ratios based on active candidates list
@@ -27,6 +49,18 @@ const HiringReport = ({ candidates }) => {
       #bec6e0 ${strongRatio + goodRatio}% 100%
     )`
   };
+
+  const executiveText = execData
+    ? execData.executive_summary.executive_text_summary
+    : `This dossier summarizes the semantic analysis of candidates evaluated for the ${mockData.jobDescription.title} role. Our AI Sourcing Agent evaluated ${total} profiles against core specifications (${mockData.jobDescription.requiredSkills.join(', ')}).`;
+
+  const highlights = execData
+    ? execData.executive_summary.key_highlights
+    : mockData.summaryReport.highlights;
+
+  const recommendationAction = execData
+    ? execData.executive_summary.recommendation_action
+    : mockData.summaryReport.recommendation;
 
   return (
     <div className="space-y-8">
@@ -59,13 +93,13 @@ const HiringReport = ({ candidates }) => {
           <GlassCard className="p-6 md:p-8 space-y-6">
             <h3 className="font-headline-md text-headline-md text-white">Executive Summary</h3>
             <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed font-light">
-              This dossier summarizes the semantic analysis of candidates evaluated for the **{mockData.jobDescription.title}** role. Our AI Sourcing Agent evaluated **{total} profiles** against core specifications ({mockData.jobDescription.requiredSkills.join(', ')}).
+              {executiveText}
             </p>
 
             <div className="space-y-4 pt-4 border-t border-white/5">
               <h4 className="font-bold text-white text-base">Key Sourcing Highlights</h4>
               <ul className="list-disc pl-5 space-y-3 text-sm text-on-surface-variant leading-relaxed font-light">
-                {reportData.highlights.map((highlight, index) => (
+                {highlights.map((highlight, index) => (
                   <li key={index}>
                     {highlight.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className="text-white">{part}</strong> : part)}
                   </li>
@@ -172,7 +206,7 @@ const HiringReport = ({ candidates }) => {
               <div className="space-y-1">
                 <h4 className="font-bold text-white text-sm">Next Step Recommendation</h4>
                 <p className="text-xs text-on-surface-variant leading-relaxed font-light">
-                  {reportData.recommendation}
+                  {recommendationAction}
                 </p>
               </div>
             </div>

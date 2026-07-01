@@ -1,12 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import GlassCard from '../components/common/GlassCard';
 import AICopilotCard from '../components/common/AICopilotCard';
 import mockData from '../data/mockData.json';
 
 const SkillGapAnalytics = () => {
-  const skillDistribution = mockData.roleSkillGap.distribution;
-  const insights = mockData.roleSkillGap.actionableInsights;
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        // Using a nil UUID or placeholder UUID to fetch analytics
+        const response = await fetch(`http://localhost:8000/v1/analysis/jobs/00000000-0000-0000-0000-000000000000/analytics`);
+        if (response.ok) {
+          const resJson = await response.json();
+          if (resJson && resJson.data) {
+            setAnalytics(resJson.data);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load backend analytics, falling back to mock data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
+  const skillDistribution = analytics 
+    ? [
+        ...analytics.skill_gap.top_matching_skills.map(s => ({ ...s, isMatch: true })),
+        ...analytics.skill_gap.top_missing_skills.map(s => ({ ...s, isMatch: false }))
+      ].slice(0, 8).map(s => ({
+        skillName: s.skill_name,
+        matchCount: s.match_count,
+        gapCount: s.gap_count
+      }))
+    : mockData.roleSkillGap.distribution;
+
+  const insights = analytics
+    ? [
+        {
+          category: "Most Requested Skills",
+          message: `The primary required skills for this role are: ${analytics.skill_gap.most_requested_skills.join(', ')}.`
+        },
+        {
+          category: "Technology Profile",
+          message: `Most common candidate technologies include: ${analytics.skill_gap.most_common_technologies.slice(0, 5).join(', ')}.`
+        },
+        {
+          category: "Certifications",
+          message: `The most common certifications observed are: ${analytics.skill_gap.most_common_certifications.join(', ') || 'None'}.`
+        }
+      ]
+    : mockData.roleSkillGap.actionableInsights;
 
   return (
     <div className="space-y-8">

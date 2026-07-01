@@ -21,6 +21,7 @@ from app.dependencies import (
     get_semantic_profile_service,
     get_ranking_service,
     get_explainability_service,
+    get_analytics_service,
 )
 from app.logging_config import get_logger
 from app.models.analysis import AnalysisJobCreate, AnalysisJobRead
@@ -29,12 +30,14 @@ from app.models.jd import JDProfileRead
 from app.models.resume import ResumeProfileRead
 from app.models.scoring import RankingResultRead
 from app.models.explainability import HiringRecommendationRead
+from app.models.analytics import JobAnalyticsResponse, JobExecutiveSummaryResponse
 from app.services.analysis_job import AnalysisJobService
 from app.services.jd_profile import JDProfileService
 from app.services.resume_profile import ResumeProfileService
 from app.services.semantic_profile import SemanticProfileService
 from app.services.ranking_service import RankingService
 from app.services.explainability_service import ExplainabilityService
+from app.services.analytics_service import AnalyticsService
 
 logger = get_logger(__name__)
 
@@ -255,3 +258,50 @@ async def get_insights(
 ) -> BaseResponse[List[HiringRecommendationRead]]:
     insights = await service.get_insights_for_job(job_id)
     return BaseResponse(data=insights)
+
+
+# ── GET /analysis/jobs/{job_id}/analytics ───────────────────────────────
+
+
+@router.get(
+    "/jobs/{job_id}/analytics",
+    response_model=BaseResponse[JobAnalyticsResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Get aggregated sourcing analytics and skill gaps",
+)
+async def get_job_analytics(
+    job_id: UUID,
+    service: AnalyticsService = Depends(get_analytics_service),
+) -> BaseResponse[JobAnalyticsResponse]:
+    analytics_summary = await service.get_analytics_summary(job_id)
+    skill_gap_summary = await service.get_skill_gap_summary(job_id)
+    return BaseResponse(
+        data=JobAnalyticsResponse(
+            analytics=analytics_summary,
+            skill_gap=skill_gap_summary
+        )
+    )
+
+
+# ── GET /analysis/jobs/{job_id}/executive-summary ───────────────────────
+
+
+@router.get(
+    "/jobs/{job_id}/executive-summary",
+    response_model=BaseResponse[JobExecutiveSummaryResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Get executive summary and candidate recommendations",
+)
+async def get_job_executive_summary(
+    job_id: UUID,
+    service: AnalyticsService = Depends(get_analytics_service),
+) -> BaseResponse[JobExecutiveSummaryResponse]:
+    exec_summary = await service.get_executive_summary(job_id)
+    recs = await service.get_recommendation_summary(job_id)
+    return BaseResponse(
+        data=JobExecutiveSummaryResponse(
+            executive_summary=exec_summary,
+            recommendations=recs
+        )
+    )
+

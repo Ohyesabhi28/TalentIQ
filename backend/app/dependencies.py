@@ -158,6 +158,12 @@ def get_explainability_service(
     from app.services.explainability_service import ExplainabilityService
     return ExplainabilityService(store=store, settings=settings)
 
+def get_analytics_service(
+    store=Depends(get_store),
+):
+    from app.services.analytics_service import AnalyticsService
+    return AnalyticsService(store=store)
+
 
 UploadServiceDep = Annotated[object, Depends(get_upload_service)]
 AnalysisJobServiceDep = Annotated[object, Depends(get_analysis_job_service)]
@@ -167,3 +173,5 @@ SemanticProfileServiceDep = Annotated[object, Depends(get_semantic_profile_servi
 ScoringServiceDep = Annotated[object, Depends(get_scoring_service)]
 RankingServiceDep = Annotated[object, Depends(get_ranking_service)]
 ExplainabilityServiceDep = Annotated[object, Depends(get_explainability_service)]
+AnalyticsServiceDep = Annotated[object, Depends(get_analytics_service)]
+

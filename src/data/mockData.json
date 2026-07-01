@@ -1,0 +1,161 @@
+{
+  "currentUser": {
+    "name": "Alex Carter",
+    "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuAcVIXK3qPp25xfjA5o4t8Wl5A0oWwzumqXjh5II0ctnMjq4je_E76QPwXGPdKGpq58gi1xQf83h_WHIOK4AVuh8I6wcf2Oh_9FRYE1S4UmJ4JEDfTwzvlBJPI63JXFijehe9FEfLKOk07ZsmdfbAQgP6Ql5q1GshSjSV62sWJzi57x7np5AfSAw0qAvsmYIqd7d8J0fL4j-XPCp4clSNkqrXSKS8LzNM6Dv9HfWigs0zZtOFHXoDI0BQLS6R34uvGOhKWvnK0uYw"
+  },
+  "jobDescription": {
+    "title": "Senior Frontend Engineer",
+    "department": "Engineering",
+    "location": "Bengaluru, India (Hybrid)",
+    "experience": "5-8 Years",
+    "summary": "We are looking for a Senior Frontend Engineer to build premium user interfaces with React and Tailwind CSS. The ideal candidate should have experience in system architecture, micro-frontends, and performance optimization.",
+    "requiredSkills": ["React", "TypeScript", "Tailwind CSS", "Vite", "System Design"],
+    "preferredSkills": ["GraphQL", "Next.js", "Docker", "Node.js", "Oxlint"]
+  },
+  "candidates": [
+    {
+      "id": "sarah-j",
+      "name": "Sarah J.",
+      "score": 94,
+      "matchType": "Strong Fit",
+      "experience": "6 Years",
+      "prevRole": "Lead UI Engineer at TechCorp",
+      "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZPBLmsY3p_TLfKj4r-XdPe4rgTf4VFcCu6A3okC5lSLQ5B8-Sj_hDjWkTIefHoGsUgBY1CfhF4Lsyke3azI1bJ_xlcz2kKxHXtrKWQo6m16BMp89FTWZGnxvno9BsN1hb4KPehCXL0chmS8N1p39cCYxSX7iccAJyXp9aVMCG3Lg3Kb_6aA6tirpWbqfchGrVerQ_UekmF_7oWS4AiZoODPI06DvBPGkbBmPxRWhfsLxY3AlI9D18gDyAJHn7rbe1kiG4Re7jyg",
+      "skills": {
+        "React": "match",
+        "TypeScript": "match",
+        "Tailwind CSS": "match",
+        "Vite": "match",
+        "System Design": "match",
+        "GraphQL": "match",
+        "Next.js": "match",
+        "Docker": "gap",
+        "Node.js": "match",
+        "Oxlint": "gap"
+      },
+      "experienceDetail": [
+        {
+          "period": "2021 - Present",
+          "role": "Lead UI Engineer",
+          "company": "TechCorp",
+          "bullets": [
+            "Led a team of 4 frontend developers to migrate a legacy product to Next.js and Tailwind.",
+            "Established corporate component library reducing UI delivery time by 35%.",
+            "Improved initial page load speeds by 40% through lazy-loading and bundle split strategies."
+          ]
+        },
+        {
+          "period": "2018 - 2021",
+          "role": "Senior Frontend Developer",
+          "company": "AppForge Systems",
+          "bullets": [
+            "Implemented real-time dashboard tracking millions of active telemetry streams.",
+            "Architected frontend modular microservice layer using Module Federation."
+          ]
+        }
+      ],
+      "education": "B.Tech in Computer Science, IIT Bombay",
+      "aiReasoning": "Sarah is an outstanding candidate with matching experience in large-scale Next.js and Tailwind applications. She has established UI architectures and possesses all core requirements. Her gap in Docker and Oxlint is minor and easily addressable.",
+      "ranking": "Top 1%"
+    },
+    {
+      "id": "michael-c",
+      "name": "Michael C.",
+      "score": 89,
+      "matchType": "Good Fit",
+      "experience": "5 Years",
+      "prevRole": "Senior Frontend Dev at StartupX",
+      "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuBxB6S2av8_DQygRVyD-ml6QI2MKRu87HoX5yr-qHnvNlU_bERqIrACuLRsMYlOnPJtEne_wYIfiEH30fzMSpA26KIjIIvzkkqqDrDPaXOx1ben4ClU68W1PXzXlRs8Hj4KyIuiKNitr2vY5anUc-KTPcnwyZv7RyGaUtAnhkBMmYqBq9ADmlhxAI6WphhszLcI68AcPolbtW_zUBIcxxloNmC8DJa1VFUWuyV1C7tpfMEnuVzzmQ-yQuZhrTj-tKbNoVO1Msk9PQ",
+      "skills": {
+        "React": "match",
+        "TypeScript": "match",
+        "Tailwind CSS": "match",
+        "Vite": "gap",
+        "System Design": "match",
+        "GraphQL": "match",
+        "Next.js": "gap",
+        "Docker": "match",
+        "Node.js": "match",
+        "Oxlint": "gap"
+      },
+      "experienceDetail": [
+        {
+          "period": "2022 - Present",
+          "role": "Senior Frontend Developer",
+          "company": "StartupX",
+          "bullets": [
+            "Managed responsive frontend interface for high-frequency trading platform.",
+            "Implemented custom Tailwind plugins for dynamic grid components.",
+            "Built containerized node service proxies (Docker) for stateful telemetry endpoints."
+          ]
+        }
+      ],
+      "education": "M.S. in Software Engineering, BITS Pilani",
+      "aiReasoning": "Michael displays deep knowledge in React, Tailwind, and Node.js with strong focus on containerized deployments. His slight gap in Next.js/Vite is offset by his active contributions to complex React architectures.",
+      "ranking": "Top 5%"
+    },
+    {
+      "id": "david-k",
+      "name": "David K.",
+      "score": 72,
+      "matchType": "Average Fit",
+      "experience": "4 Years",
+      "prevRole": "Software Engineer at Globex Corp",
+      "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuBJ7fluDhK28D3smmmPzeo1wD4PRjnULn7b52bMoFUfhmrKg1qQbKuHj3CLMM30NsZ6ETts3xSwDC9N4Fh3vO0lLbNy6B6wUB2r0iFChEhwWB4NXm6V3oUTviFAWZgSA6cdCPX86pCwGp73a8sraVRaH7oxShr9eRSnyy-Mj8BMtt6_aoWvsohanKq1c9aLnvLxaxMV1qNKD7avOPl0pBNuH9LcNKzwdXd6cXoT334KOFk1_A5hy51ZpdckHokdSuYaOx6ohf9qoNw",
+      "skills": {
+        "React": "match",
+        "TypeScript": "gap",
+        "Tailwind CSS": "match",
+        "Vite": "gap",
+        "System Design": "gap",
+        "GraphQL": "gap",
+        "Next.js": "gap",
+        "Docker": "gap",
+        "Node.js": "match",
+        "Oxlint": "gap"
+      },
+      "experienceDetail": [
+        {
+          "period": "2020 - 2024",
+          "role": "Software Engineer",
+          "company": "Globex Corp",
+          "bullets": [
+            "Developed consumer facing React pages with modular CSS grids.",
+            "Maintained backend Node controllers for transactional data queries."
+          ]
+        }
+      ],
+      "education": "B.E. in Information Technology, Delhi Technological University",
+      "aiReasoning": "David has a solid foundation in React and Node.js but lacks TypeScript, System Design, and Modern build system experience. He would require active mentoring to fill the Senior profile gaps.",
+      "ranking": "Top 25%"
+    }
+  ],
+  "roleSkillGap": {
+    "distribution": [
+      { "skillName": "React/Frontend Core", "matchCount": 3, "gapCount": 0 },
+      { "skillName": "TypeScript Integration", "matchCount": 2, "gapCount": 1 },
+      { "skillName": "Tailwind CSS", "matchCount": 3, "gapCount": 0 },
+      { "skillName": "System Design Architecture", "matchCount": 2, "gapCount": 1 },
+      { "skillName": "Vite/Next.js Build Systems", "matchCount": 1, "gapCount": 2 },
+      { "skillName": "Docker/Node.js Toolchain", "matchCount": 2, "gapCount": 1 }
+    ],
+    "actionableInsights": [
+      { "category": "TypeScript Integration", "message": "1 candidate displays TypeScript gaps. Consider basic internal training." },
+      { "category": "Build Toolchain", "message": "Next.js/Vite gaps found in 2 candidates. Standardizing templates is advised." }
+    ]
+  },
+  "summaryReport": {
+    "recruiterSummary": "Based on the semantic analysis of the job description, Sarah J. and Michael C. show strong alignment on React, Tailwind, and Frontend design patterns. There is a general build-tool gap across all resumes (Next.js/Vite skill matching is low).",
+    "highlights": [
+      "Sarah J. stands out as the top candidate (94% match) with proven leadership experience and a complete skill match on required core libraries.",
+      "Michael C. is a strong runner-up (89% match) with substantial Docker and Node.js backend toolchain capability.",
+      "A general sourcing gap is identified in modern bundle optimization and build configurations (specifically Vite/Next.js)."
+    ],
+    "recommendation": "Initiate immediate tech screening interviews with Sarah J., and compare her project portfolios against the target Tailwind spec.",
+    "fitRatios": {
+      "strong": 1,
+      "good": 1,
+      "average": 1
+    }
+  }
+}

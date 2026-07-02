@@ -1,0 +1,35 @@
+Metric Group,Metric Name,Value
+Pipeline Stage Time,Job Description Upload Time (s),0.0006
+Pipeline Stage Time,Resume Upload Time (s),0.0031
+Pipeline Stage Time,Pdf Extraction Time (s),0.1175
+Pipeline Stage Time,Gemini Jd Parsing Time (s),0.2131
+Pipeline Stage Time,Resume Parsing Time (s),1.5673
+Pipeline Stage Time,Embedding Generation Time (s),16.4177
+Pipeline Stage Time,Faiss Index Creation Time (s),0.0004
+Pipeline Stage Time,Candidate Scoring Time (s),2.4438
+Pipeline Stage Time,Ranking Time (s),0.0001
+Pipeline Stage Time,Explainability Time (s),1.5705
+Pipeline Stage Time,Analytics Generation Time (s),0.0001
+Pipeline Stage Time,Excel Export Time (s),0.0245
+Pipeline Stage Time,Pdf Export Time (s),0.0136
+Pipeline Stage Time,Total End To End Processing Time (s),22.3725
+Candidate Evaluation Summary,Candidates Processed,10
+Candidate Evaluation Summary,Average Processing Time Per Candidate Seconds,2.24
+Candidate Evaluation Summary,Average Overall Match Score,60.62
+Candidate Evaluation Summary,Highest Match Score,91.02
+Candidate Evaluation Summary,Lowest Match Score,37.72
+Candidate Evaluation Summary,Average Skill Match,40.0
+Candidate Evaluation Summary,Average Semantic Similarity,72.03
+Candidate Evaluation Summary,Average Experience Match,78.0
+
+Rank,Candidate Name,Overall Score,Skill Match,Semantic Match,Experience Match
+1,John Smith,91.02,100.0,79.35,100.0
+2,Grace Davis,83.75,85.71,81.43,100.0
+3,Jane Doe,77.55,57.14,82.19,100.0
+4,Charlie Green,74.59,57.14,80.18,100.0
+5,Frank Miller,62.61,42.86,77.88,80.0
+6,Bob Brown,57.73,28.57,74.6,80.0
+7,Eva Black,43.56,0.0,66.19,100.0
+8,Alice Johnson,39.35,14.29,58.12,40.0
+9,Henry Wilson,38.32,14.29,63.61,20.0
+10,David White,37.72,0.0,56.74,60.0

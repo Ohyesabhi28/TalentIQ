@@ -1,0 +1,140 @@
+{
+    "pipeline_metrics": {
+        "job_description_upload_time_seconds": 0.0005763999997725477,
+        "resume_upload_time_seconds": 0.0031311000002460787,
+        "pdf_extraction_time_seconds": 0.11754590000055032,
+        "gemini_jd_parsing_time_seconds": 0.21309569999903033,
+        "resume_parsing_time_seconds": 1.5672604999999749,
+        "embedding_generation_time_seconds": 16.417728799999168,
+        "faiss_index_creation_time_seconds": 0.0003550000001268927,
+        "candidate_scoring_time_seconds": 2.4437681999988854,
+        "ranking_time_seconds": 0.00013760000001639128,
+        "explainability_time_seconds": 1.5705276999997295,
+        "analytics_generation_time_seconds": 7.349999941652641e-05,
+        "excel_export_time_seconds": 0.024544399999285815,
+        "pdf_export_time_seconds": 0.013630399998874054,
+        "total_end_to_end_processing_time_seconds": 22.37247059999936
+    },
+    "candidate_metrics": {
+        "candidates_processed": 10,
+        "average_processing_time_per_candidate_seconds": 2.237247059999936,
+        "average_overall_match_score": 60.620000000000005,
+        "highest_match_score": 91.02,
+        "lowest_match_score": 37.72,
+        "average_skill_match": 40.0,
+        "average_semantic_similarity": 72.029,
+        "average_experience_match": 78.0
+    },
+    "candidate_details": [
+        {
+            "rank": "1",
+            "name": "John Smith",
+            "overall_score": 91.02,
+            "skill_match": 100.0,
+            "semantic_similarity": 79.35,
+            "experience_match": 100.0,
+            "project_relevance": 71.59,
+            "education_match": 90.21,
+            "certification_match": 100.0
+        },
+        {
+            "rank": "2",
+            "name": "Grace Davis",
+            "overall_score": 83.75,
+            "skill_match": 85.71,
+            "semantic_similarity": 81.43,
+            "experience_match": 100.0,
+            "project_relevance": 65.27,
+            "education_match": 68.69,
+            "certification_match": 100.0
+        },
+        {
+            "rank": "3",
+            "name": "Jane Doe",
+            "overall_score": 77.55,
+            "skill_match": 57.14,
+            "semantic_similarity": 82.19,
+            "experience_match": 100.0,
+            "project_relevance": 79.83,
+            "education_match": 90.21,
+            "certification_match": 100.0
+        },
+        {
+            "rank": "4",
+            "name": "Charlie Green",
+            "overall_score": 74.59,
+            "skill_match": 57.14,
+            "semantic_similarity": 80.18,
+            "experience_match": 100.0,
+            "project_relevance": 62.01,
+            "education_match": 83.47,
+            "certification_match": 100.0
+        },
+        {
+            "rank": "5",
+            "name": "Frank Miller",
+            "overall_score": 62.61,
+            "skill_match": 42.86,
+            "semantic_similarity": 77.88,
+            "experience_match": 80.0,
+            "project_relevance": 73.73,
+            "education_match": 87.63,
+            "certification_match": 0.0
+        },
+        {
+            "rank": "6",
+            "name": "Bob Brown",
+            "overall_score": 57.73,
+            "skill_match": 28.57,
+            "semantic_similarity": 74.6,
+            "experience_match": 80.0,
+            "project_relevance": 80.56,
+            "education_match": 90.21,
+            "certification_match": 0.0
+        },
+        {
+            "rank": "7",
+            "name": "Eva Black",
+            "overall_score": 43.56,
+            "skill_match": 0.0,
+            "semantic_similarity": 66.19,
+            "experience_match": 100.0,
+            "project_relevance": 56.99,
+            "education_match": 63.09,
+            "certification_match": 0.0
+        },
+        {
+            "rank": "8",
+            "name": "Alice Johnson",
+            "overall_score": 39.35,
+            "skill_match": 14.29,
+            "semantic_similarity": 58.12,
+            "experience_match": 40.0,
+            "project_relevance": 50.54,
+            "education_match": 87.63,
+            "certification_match": 0.0
+        },
+        {
+            "rank": "9",
+            "name": "Henry Wilson",
+            "overall_score": 38.32,
+            "skill_match": 14.29,
+            "semantic_similarity": 63.61,
+            "experience_match": 20.0,
+            "project_relevance": 67.09,
+            "education_match": 77.07,
+            "certification_match": 0.0
+        },
+        {
+            "rank": "10",
+            "name": "David White",
+            "overall_score": 37.72,
+            "skill_match": 0.0,
+            "semantic_similarity": 56.74,
+            "experience_match": 60.0,
+            "project_relevance": 57.71,
+            "education_match": 87.63,
+            "certification_match": 0.0
+        }
+    ]
+}

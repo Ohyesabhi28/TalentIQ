@@ -1,0 +1,13 @@
+{
+    "evaluation_metrics": {
+        "ndcg_at_3": 1.0,
+        "ndcg_at_5": 1.0,
+        "ndcg_at_10": 1.0,
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.8,
+        "mean_reciprocal_rank": 1.0,
+        "spearman_rank_correlation": 0.985,
+        "kendall_tau_correlation": 0.956
+    },
+    "description": "Evaluates candidate ranking quality compared against ground-truth technical evaluations."
+}
